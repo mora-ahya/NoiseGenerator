@@ -16,8 +16,7 @@ public class NoiseGenerator : MonoBehaviour
     [SerializeField] string textureName;
 
     [SerializeField] Vector2Int textureSize;
-
-    [SerializeField] Texture2D texture;
+    [SerializeField] bool whiteAlphaMode = false;
 
     [SerializeField] Material fBmMaterial;
     [SerializeField] Material clearMaterial;
@@ -25,7 +24,7 @@ public class NoiseGenerator : MonoBehaviour
 
     [SerializeField] NoiseDataPack pack;
 
-    // 個別のプロジェクトに移行して、githubに挙げる
+    Texture2D texture;
 
 
     private void OnDestroy()
@@ -47,8 +46,16 @@ public class NoiseGenerator : MonoBehaviour
         BlitToOtherWithReadable(result, result, clearMaterial, destFormat: RenderTextureFormat.ARGBFloat);
 
         fBmMaterial.SetTexture("_BaseTex", result);
+        if (whiteAlphaMode)
+        {
+            fBmMaterial.EnableKeyword("WHITE_ALPHA");
+        }
+        else
+        {
+            fBmMaterial.DisableKeyword("WHITE_ALPHA");
+        }
 
-        float fbmMax = 0.0f;
+            float fbmMax = 0.0f;
         int i = 0;
         foreach (var data in pack.datas)
         {
@@ -57,6 +64,14 @@ public class NoiseGenerator : MonoBehaviour
             float scale = data.scale * Mathf.Pow(2.0f, i);
             float amplitude = data.amplitude;
 
+            if (whiteAlphaMode)
+            {
+                data.material.EnableKeyword("WHITE_ALPHA");
+            }
+            else
+            {
+                data.material.DisableKeyword("WHITE_ALPHA");
+            }
             data.material.SetVector("_Offset", data.offset);
             data.material.SetFloat("_Scale", scale);
             data.material.SetFloat("_Amplitude", amplitude);
